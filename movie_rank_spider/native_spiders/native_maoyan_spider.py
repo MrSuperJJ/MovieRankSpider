@@ -16,12 +16,12 @@ def parse_html(html_content):
 
     for dd in selector.xpath('''//dd'''):
         global rank
-        movie_img_url = dd.xpath('''a/img[@class='board-img']/@data-src''')[0]
-        item_content_div = dd.xpath('''div/div[@class='board-item-content']''')[0]
-        movie_name = item_content_div.xpath('''div/p[@class='name']/a/text()''')[0]
-        movie_star = maoyan_parser.parse_movie_star(item_content_div.xpath('''div/p[@class='star']/text()''')[0])
-        movie_releasetime = maoyan_parser.parse_movie_releasetime(item_content_div.xpath('''div/p[@class='releasetime']/text()''')[0])
-        movie_score = maoyan_parser.parse_movie_score(item_content_div.xpath('''div/p[@class='score']/i[@class='integer']/text()''')[0] + item_content_div.xpath('''div/p[@class='score']/i[@class='fraction']/text()''')[0])
+        movie_img_url = dd.xpath('''./a/img[@class='board-img']/@data-src''')[0]
+        div = dd.xpath('''./div/div[@class='board-item-content']''')[0]
+        movie_name = div.xpath('''./div/p[@class='name']/a/text()''')[0]
+        movie_star = maoyan_parser.parse_movie_star(div.xpath('''./div/p[@class='star']/text()''')[0])
+        movie_releasetime = maoyan_parser.parse_movie_releasetime(div.xpath('''./div/p[@class='releasetime']/text()''')[0])
+        movie_score = maoyan_parser.parse_movie_score(div.xpath('''./div/p[@class='score']/i[@class='integer']/text()''')[0] + div.xpath('''./div/p[@class='score']/i[@class='fraction']/text()''')[0])
         rank += 1
         movie_item = {
             'rank': rank,
