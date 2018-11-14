@@ -3,6 +3,7 @@ from scrapy.loader import ItemLoader
 from scrapy.loader.processors import MapCompose, TakeFirst
 from movie_rank_spider.parsers import maoyan_parser
 
+
 class MovieItem(scrapy.Item):
     rank = scrapy.Field()
     img_url = scrapy.Field()
@@ -20,8 +21,10 @@ class MovieItem(scrapy.Item):
         input_processor = MapCompose(maoyan_parser.parse_movie_score)
     )
 
+
 class MovieItemLoader(ItemLoader):
     default_output_processor = TakeFirst()
+
 
 class MaoyanSpider(scrapy.Spider):
     name = 'maoyan_spider'

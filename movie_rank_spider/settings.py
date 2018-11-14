@@ -64,9 +64,10 @@ ROBOTSTXT_OBEY = False
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'movie_rank_spider.pipelines.MovieRankSpiderPipeline': 300,
-#}
+ITEM_PIPELINES = {
+   # 'movie_rank_spider.pipelines.MovieRankSpiderPipeline': 300,
+   'movie_rank_spider.pipelines.JsonWriterPipeline': 800,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
