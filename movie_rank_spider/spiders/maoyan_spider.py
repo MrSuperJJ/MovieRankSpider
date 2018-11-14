@@ -11,10 +11,14 @@ class MovieItem(scrapy.Item):
         input_processor = MapCompose(maoyan_parser.parse_movie_star),
         output_processor = MapCompose()
     )
-    releasetime = scrapy.Field()
-    _score_integer = scrapy.Field()
-    _score_fraction = scrapy.Field()
-    score = scrapy.Field()
+    releasetime = scrapy.Field(
+        input_processor = MapCompose(maoyan_parser.parse_movie_releasetime)
+    )
+    score_integer = scrapy.Field()
+    score_fraction = scrapy.Field()
+    score = scrapy.Field(
+        input_processor = MapCompose(maoyan_parser.parse_movie_score)
+    )
 
 class MovieItemLoader(ItemLoader):
     default_output_processor = TakeFirst()
@@ -41,10 +45,11 @@ class MaoyanSpider(scrapy.Spider):
             item_loader.add_css('name', 'div p.name a::text')
             item_loader.add_css('star', 'div p.star::text')
             item_loader.add_css('releasetime', 'div p.releasetime::text')
-            item_loader.add_css('_score_integer', 'div p.score i.integer::text')
-            item_loader.add_css('_score_fraction', 'div p.score i.fraction::text')
-            item_loader.add_value('score', item_loader.get_output_value('_score_integer') + item_loader.get_output_value('_score_fraction'))
+            item_loader.add_css('score_integer', 'div p.score i.integer::text')
+            item_loader.add_css('score_fraction', 'div p.score i.fraction::text')
+            item_loader.add_value('score', item_loader.get_output_value('score_integer') + item_loader.get_output_value('score_fraction'))
             yield item_loader.load_item()
+
             # item = MovieItem()
             # item['rank'] = self.rank
             # item['img_url'] = dd.css('a img.board-img::attr(data-src)').extract_first()
