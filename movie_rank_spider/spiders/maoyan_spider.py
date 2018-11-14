@@ -1,14 +1,23 @@
 import scrapy
 from scrapy.loader import ItemLoader
+from scrapy.loader.processors import MapCompose, TakeFirst
 from movie_rank_spider.parsers import maoyan_parser
 
 class MovieItem(scrapy.Item):
     rank = scrapy.Field()
     img_url = scrapy.Field()
     name = scrapy.Field()
-    star = scrapy.Field()
+    star = scrapy.Field(
+        input_processor = MapCompose(maoyan_parser.parse_movie_star),
+        output_processor = MapCompose()
+    )
     releasetime = scrapy.Field()
+    _score_integer = scrapy.Field()
+    _score_fraction = scrapy.Field()
     score = scrapy.Field()
+
+class MovieItemLoader(ItemLoader):
+    default_output_processor = TakeFirst()
 
 class MaoyanSpider(scrapy.Spider):
     name = 'maoyan_spider'
@@ -26,16 +35,26 @@ class MaoyanSpider(scrapy.Spider):
         for dd in response.css('dd'):
             self.rank += 1
             div = dd.css('''div div.board-item-content''')
-            item = MovieItem()
-            item['rank'] = self.rank
-            item['img_url'] = dd.css('''a img.board-img::attr(data-src)''').extract_first()
-            item['name'] = div.css('div p.name a::text').extract_first()
-            item['star'] = maoyan_parser.parse_movie_star(div.css('div p.star::text').extract_first())
-            item['releasetime'] = maoyan_parser.parse_movie_releasetime(div.css('div p.releasetime::text').extract_first())
-            item['score'] = maoyan_parser.parse_movie_score(
-                div.css('''div p.score i.integer::text''').extract_first() +
-                div.css('''div p.score i.fraction::text''').extract_first())
-            yield item
+            item_loader = MovieItemLoader(item=MovieItem(), selector=div)
+            item_loader.add_value('rank', self.rank)
+            item_loader.add_css('img_url', 'a img.board-img::attr(data-src)')
+            item_loader.add_css('name', 'div p.name a::text')
+            item_loader.add_css('star', 'div p.star::text')
+            item_loader.add_css('releasetime', 'div p.releasetime::text')
+            item_loader.add_css('_score_integer', 'div p.score i.integer::text')
+            item_loader.add_css('_score_fraction', 'div p.score i.fraction::text')
+            item_loader.add_value('score', item_loader.get_output_value('_score_integer') + item_loader.get_output_value('_score_fraction'))
+            yield item_loader.load_item()
+            # item = MovieItem()
+            # item['rank'] = self.rank
+            # item['img_url'] = dd.css('a img.board-img::attr(data-src)').extract_first()
+            # item['name'] = div.css('div p.name a::text').extract_first()
+            # item['star'] = maoyan_parser.parse_movie_star(div.css('div p.star::text').extract_first())
+            # item['releasetime'] = maoyan_parser.parse_movie_releasetime(div.css('div p.releasetime::text').extract_first())
+            # item['score'] = maoyan_parser.parse_movie_score(
+            #     div.css('div p.score i.integer::text').extract_first() +
+            #     div.css('div p.score i.fraction::text').extract_first())
+            # yield item
 
         next_page = response.xpath('''//a[contains(text(), '下一页')]/@href''')
         if next_page:
