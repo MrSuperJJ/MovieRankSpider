@@ -4,11 +4,21 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-import json
+
 from scrapy.exporters import JsonItemExporter
 
+
 class MovieRankSpiderPipeline(object):
+
     def process_item(self, item, spider):
+        return item
+
+
+class ItemCleanerPipeline(object):
+
+    def process_item(self, item, spider):
+        item.pop('score_integer')
+        item.pop('score_fraction')
         return item
 
 

@@ -1,25 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
-from scrapy.loader.processors import MapCompose, TakeFirst
-from movie_rank_spider.parsers import maoyan_parser
-
-
-class MovieItem(scrapy.Item):
-    rank = scrapy.Field()
-    img_url = scrapy.Field()
-    name = scrapy.Field()
-    star = scrapy.Field(
-        input_processor = MapCompose(maoyan_parser.parse_movie_star),
-        output_processor = MapCompose()
-    )
-    releasetime = scrapy.Field(
-        input_processor = MapCompose(maoyan_parser.parse_movie_releasetime)
-    )
-    score_integer = scrapy.Field()
-    score_fraction = scrapy.Field()
-    score = scrapy.Field(
-        input_processor = MapCompose(maoyan_parser.parse_movie_score)
-    )
+from scrapy.loader.processors import TakeFirst
+from movie_rank_spider.items import MovieItem
 
 
 class MovieItemLoader(ItemLoader):
